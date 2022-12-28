@@ -96,6 +96,19 @@ def decrypt(msg_ciphertext, package):
     return (''.join(msg_plaintext))
 
 
+
+def gen_public_private_key():
+    bit_length = 3
+    print("Running RSA...")
+    print("Generating public/private keypair...")
+    public, private = generate_keypair(
+        p, q, 2 ** bit_length)  # 8 is the keysize (bit-length) value.
+    print("Public Key: ", public)
+    print("Private Key: ", private)
+    return public,private
+
+
+
 #-------------------------------------------------------------
 #driver program
 if __name__ == "__main__":
@@ -116,5 +129,5 @@ if __name__ == "__main__":
     print("Encrypted msg: ")
     print(''.join(map(lambda x: str(x), encrypted_msg))) # print as string
     print(type(public))
-    # print("Decrypted msg: ")
-    # print(decrypt(encrypted_msg, private))
+    print("Decrypted msg: ")
+    print(decrypt(encrypted_msg, private))

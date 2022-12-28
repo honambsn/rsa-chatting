@@ -1,20 +1,9 @@
 import socket
 from rsa import *
-
-
-def gen_public_private_key():
-    bit_length = 3
-    print("Running RSA...")
-    print("Generating public/private keypair...")
-    public, private = generate_keypair(
-        p, q, 2 ** bit_length)  # 8 is the keysize (bit-length) value.
-    print("Public Key: ", public)
-    print("Private Key: ", private)
-    return public,private
+from client import *
+import os
 
 def server_program():
-
-
     # get the hostname
     host = socket.gethostname()
     port = 2000  # initiate port no above 1024
@@ -28,61 +17,86 @@ def server_program():
         conn, address = server_socket.accept()  # accept new connection
         print("Connection from: " + str(address))
 
+        # generate server's keys
+        server_key = gen_public_private_key()
+        print("\t----check server's key again: -----\n")
+        print("\tpublic key: " + str(server_key[0]))
+        print("\tprivate key: " + str(server_key[1]))
+        private_key = server_key[1]
 
-        key = gen_public_private_key()
-        print("----check again: -----\n")
-        print("\tpublic key: " + str(key[0]))
-
-        print("\tprivate key: " + str(key[1]))
-        private = key[1]
-
-        data = str(key[0])
+        # send server's public key to client
+        data = str(server_key[0])
         conn.send(data.encode())
 
+        # get client's public key
+        data = conn.recv(1024).decode('utf-8')
+        print("client's key received: ", data)
+
+        # format to get client's public key
+        client_public_key = data
+
+        print(type(data))
+        res = format_key(client_public_key)
+
+        n = int(res[0])
+        e = int(res[1])
+        client_public_key = n, e
+
+        print(client_public_key)
+        print(type(client_public_key))
+        os.system('cls')
         while True:
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = conn.recv(1024).decode('utf-8')
             # data = eval(data)
             print(type(data))
-            print(data)
+            print("\t==>Raw data receive from client: ", data)
 
             tmp = data.split(",")
-            print(tmp)
-            print(type(tmp))
-            print(len(tmp))
+            # print(tmp)
+            # print(type(tmp))
+            # print(len(tmp))
             del tmp[-1]
 
-            for i in range (0, len(tmp)):
+            for i in range(0, len(tmp)):
                 tmp[i] = int(tmp[i])
 
-            print(tmp)
-            print(type(tmp))
-            print(len(tmp))
-            ####################   DECRYPTTTT MESSAGEEEEEE ################
-
-            test_res = decrypt(tmp,private)
-            print("decrypted message: ", test_res)
-
-
+            # print(tmp)
+            # print(type(tmp))
+            # print(len(tmp))
 
             if not data:
                 # if data is not received break
                 break
 
-            # res = ''.join(format(ord(i), '08b') for i in str(data))
-            # print("test format: "  + res)
-            print("User's msg: " + str(data))
-            data = "hi" ##input("--> Server's msg:  " )
+
+            print("Client's msg: " + str(data))
+
+            ####################   DECRYPTTTT client's MESSAGEEEEEE ################
+            test_res = decrypt(tmp, private_key)
+
+            print("\t==>decrypted client's message: ", test_res)
+
+
+            data = input("--> Server's msg:  " )
+            ####################   ENCRYPTTTT server's MESSAGEEEEEE ################
+            encrypted_msg = encrypt(data, client_public_key)
+            data = encrypted_msg
+            print("encrypt msg: ", data)
+
+            print("Message's length: ", len(data))
+            tmp = ""
+            for i in range(0, len(data)):
+                tmp = tmp + str(data[i]) + ","
+                i = i + 1
+
+            data = tmp
+
             conn.send(data.encode())  # send data to the client
 
         conn.close()  # close the connection
         print("\n\nTrying to connect another client.......")
 
 
-
-
-
 if __name__ == '__main__':
-
-
     server_program()
