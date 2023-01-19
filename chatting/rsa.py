@@ -6,6 +6,11 @@ from random import randint as rand
 
 #just to use the well known keyword rand() from C++
 
+nMin = 6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503042048
+nMax = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095
+
+start = 57896044618658097711785492504343953926634992332820282019728792003956564819968
+stop = 231584178474632390847141970017375815706539969331281128078915168015826259279872
 
 def gcd(a, b):
     if b == 0:
@@ -36,11 +41,11 @@ q = rand(1, 1000)
 
 
 def generate_keypair(p, q, keysize):
-    nMin = 1 << (keysize - 1)
-    nMax = (1 << keysize) - 1
+    # nMin = 1 << (keysize - 1)
+    # nMax = (1 << keysize) - 1
     primes = [2]
-    start = 1 << (keysize // 2 - 1)
-    stop = 1 << (keysize // 2 + 1)
+    # start = 1 << (keysize // 2 - 1)
+    # stop = 1 << (keysize // 2 + 1)
 
     if start >= stop:
         return []
@@ -112,14 +117,15 @@ def gen_public_private_key():
 #-------------------------------------------------------------
 #driver program
 if __name__ == "__main__":
-    bit_length = 3
+    bit_length = 512
     print("Running RSA...")
     print("Generating public/private keypair...")
     public, private = generate_keypair(
         p, q, 2**bit_length)  # 8 is the keysize (bit-length) value.
     print("Public Key: ", public)
     print("Private Key: ", private)
-    msg = input("Write msg: ")
+    # msg = input("Write msg: ")
+    msg = "hi"
     print([ord(c) for c in msg])
     encrypted_msg = encrypt(msg, public)
     print(encrypted_msg)
