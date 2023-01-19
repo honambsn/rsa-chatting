@@ -3,7 +3,7 @@ pipeline {
     stages {
             stage ('Clone') {
                 steps {
-                    git 'https://github.com/honambsn/rsa-chatting.git'
+                    git branch: 'main', url: 'https://github.com/honambsn/rsa-chatting.git'
                 }
             }
         
